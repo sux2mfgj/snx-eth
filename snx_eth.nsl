@@ -65,6 +65,11 @@ module snx_eth
     func arp_rx.received {
     	_display("%x %x", arp_rx.getSMAC(), arp_rx.getSIP());
         led := 8'0xaa;
+        received();
+    }
+
+    func getSIP {
+        return arp_rx.getSIP();
     }
 
     func getled {

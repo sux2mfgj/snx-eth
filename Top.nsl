@@ -1,5 +1,6 @@
 #include "snx_eth.inc"
 declare Top {
+    output LEDR[16];
     output LEDG[8];
     // for Ethernet
     input ENET1_RX_DATA[4];
@@ -16,6 +17,7 @@ declare Top {
 
 module Top {
     reg reset_signal = 0;
+    reg ledr[16] = 0;
     snx_eth eth;
     
     eth.p_reset = p_reset;
@@ -34,4 +36,9 @@ module Top {
     reset_signal := 1;
 
     LEDG = eth.getled();
+
+    func eth.received {
+        ledr := eth.getSIP()[15:0];
+    }
+    LEDR = ledr;
 }

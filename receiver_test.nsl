@@ -16,6 +16,7 @@ module receiver_test
         0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
         0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7,0xe,0xb,0x0,0x1,0xb,0x7,0x9
     };
+
     reg counter[9] = 0;
 
     receiver rx;
@@ -23,30 +24,30 @@ module receiver_test
     rx.m_clock = m_clock;
 
     counter++;
-    if(counter <= 0x10)
+    if(counter <= 9'0x10)
     {
         rx.valid = 0;
-        rx.data = 0x00;
+        rx.data = 4'0x0;
     }
 
-    if(counter > 0x10 && counter < (0d72 + 0x10))
+    if(counter > 9'0x10 && counter < (9'0d144+ 9'0x10))
     {
-        rx.data = {ps[counter - 0x10]};
+        rx.data = ps[counter - 9'0x10];
         rx.valid = 1;
-        _display("0x%x", ps[counter - 0x10]);
+        _display("0x%x", ps[counter - 9'0x10]);
     }
 
-    if(counter >= (0d72 + 0x10))
+    if(counter >= (9'0d144 + 9'0x10))
     {
         rx.valid = 0;
-        rx.data = 0x00;
+        rx.data = 4'0x0;
     }
 
     func rx.received {
         _display("received: %x %x", rx.getIP(), rx.getMAC());
     }
 
-    if(counter > 500)
+    if(counter > 9'0d300)
     {
         _finish();
     }

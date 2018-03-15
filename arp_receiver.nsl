@@ -7,6 +7,7 @@ module arp_receiver {
 
   proc_name hwtype, protocoltype, hwsize, protocolsize;
   proc_name opecode, srcmac, srcip, dstmac, dstip;
+  proc_name padding, fcs;
 
   proc_name recv, error_detect;
 
@@ -109,6 +110,19 @@ module arp_receiver {
     cnt := if(cnt + 1 == 8) 0 else cnt + 1;
     if(cnt[0] == 0) dip := ((dip<<8)[31:0])|32'data;
     if(cnt[0] == 1) dip := dip|32'{data,0x0};
+    if(cnt + 1 == 8) padding();
+  }
+
+  proc padding {
+    _display("padding");
+    cnt := if(cnt + 1 == 36) 0 else cnt + 1;
+    if(data != 0x0) error_detect();
+    if(cnt + 1 == 36) fcs();
+  }
+
+  proc fcs {
+    _display("fcs");
+    cnt := if(cnt + 1 == 8) 0 else cnt + 1;
     if(cnt + 1 == 8) recv();
   }
 

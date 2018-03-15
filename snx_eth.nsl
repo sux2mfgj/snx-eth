@@ -5,7 +5,6 @@ module snx_eth
 {
     arp_receiver arp_rx;
     reg led[8] = 0;
-    reg reset_signal = 0;
 
     proc_name sfd, dst, src, check;
     reg running = 0;
@@ -66,6 +65,7 @@ module snx_eth
     	_display("%x %x", arp_rx.getSMAC(), arp_rx.getSIP());
         led := 8'0xaa;
         received();
+	    running := 0;
     }
 
     func getSIP {

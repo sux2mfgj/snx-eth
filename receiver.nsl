@@ -1,12 +1,11 @@
 #include "receiver.inc"
 module receiver {
   reg running = 0, pvalid = 0;
-  
   reg cnt[8];
   reg psmac[48] = 0;
   reg smac[48] = 0, sip[32] = 0;
   reg dmac[48] = 0, dip[32] = 0;
-  
+
   proc_name sfd, dst, src, arp;
   proc_name hwtype, protocoltype, hwsize, protocolsize;
   proc_name opecode, srcmac, srcip, dstmac, dstip;
@@ -24,7 +23,7 @@ module receiver {
 
   if(running == 1 && pvalid == 1 && valid == 0){
     running := 0;
-  } 
+  }
 
   proc sfd {
     any {
@@ -32,7 +31,7 @@ module receiver {
       (data != 0x5 && data != 0xd) : error_detect();
     }
   }
-  
+
   proc dst {
     _display("dst");
     cnt := if(cnt + 1 == 12) 0 else cnt + 1;
@@ -73,19 +72,19 @@ module receiver {
       (cnt + 1 == 4) : protocoltype();
     }
   }
-  
+
   proc protocoltype {
     _display("protocoltype");
     cnt := if(cnt + 1 == 4) 0 else cnt + 1;
     any {
-      (cnt == 0 && data != 0x0) : error_detect();
-      (cnt == 1 && data != 0x8) : error_detect();
+      (cnt == 0 && data != 0x8) : error_detect();
+      (cnt == 1 && data != 0x0) : error_detect();
       (cnt == 2 && data != 0x0) : error_detect();
       (cnt == 3 && data != 0x0) : error_detect();
       (cnt + 1 == 4) : hwsize();
     }
   }
-  
+
   proc hwsize {
     _display("hwsize");
     cnt := if(cnt + 1 == 2) 0 else cnt + 1;
@@ -95,7 +94,7 @@ module receiver {
       (cnt + 1 == 2) : protocolsize();
     }
   }
-  
+
   proc protocolsize {
     _display("protocolsize");
     cnt := if(cnt + 1 == 2) 0 else cnt + 1;
@@ -105,7 +104,7 @@ module receiver {
       (cnt + 1 == 2) : opecode();
     }
   }
-  
+
   proc opecode {
     _display("opecode");
     cnt := if(cnt + 1 == 4) 0 else cnt + 1;

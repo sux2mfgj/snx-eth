@@ -26,6 +26,8 @@ module receiver_test
     eth.error = 0;
 
     counter++;
+
+ 
     if(counter <= 9'0x10)
     {
         eth.valid = 0;
@@ -34,6 +36,7 @@ module receiver_test
 
     if(counter > 9'0x10 && counter < (9'0d144+ 9'0x10))
     {
+        _display("count:%d , value:%x", counter, ps[counter - 9'0x10]);
         eth.data = ps[counter - 9'0x10];
         eth.valid = 1;
         //_display("0x%x", ps[counter - 9'0x10]);
@@ -41,6 +44,7 @@ module receiver_test
 
     if(counter >= (9'0d144 + 9'0x10))
     {
+        //_display("COUNT:%d , VALUE:%x", counter, ps[counter - 9'0x10]);
         eth.valid = 0;
         eth.data = 4'0x0;
     }

@@ -1,8 +1,7 @@
 #include "receiver.inc"
 module receiver {
-  reg running = 0, pvalid;
+  reg running = 0, pvalid = 0;
   
-  reg count[32] = 0;
   reg cnt[8];
   reg psmac[48] = 0;
   reg smac[48] = 0, sip[32] = 0;
@@ -15,7 +14,6 @@ module receiver {
   proc_name recv, error_detect;
 
   pvalid := valid;
-  count := count + 1;
   if(error == 1) error_detect();
 
   if(valid == 1 && running == 0){
@@ -30,7 +28,7 @@ module receiver {
 
   proc sfd {
     any {
-      (data == 0x5) : dst();
+      (data == 0xd) : dst();
       (data != 0x5 && data != 0xd) : error_detect();
     }
   }

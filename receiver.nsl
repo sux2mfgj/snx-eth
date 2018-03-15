@@ -44,8 +44,8 @@ module receiver {
   proc src {
     _display("src");
     cnt := if(cnt + 1 == 12) 0 else cnt + 1;
-    if(cnt[0] == 0) psmac := ((psmac<<8)[47:0])|48'(data<<4);
-    if(cnt[0] == 1) psmac := psmac|48'data;
+    if(cnt[0] == 0) psmac := ((psmac<<8)[47:0])|48'data;
+    if(cnt[0] == 1) psmac := psmac|48'{data,0x0};
     if(cnt + 1 == 12) arp();
   }
 
@@ -120,24 +120,24 @@ module receiver {
   proc srcmac {
     _display("srcmac: %x %x", smac, data);
     cnt := if(cnt + 1 == 12) 0 else cnt + 1;
-    if(cnt[0] == 0) smac := ((smac<<8)[47:0])|48'{data,0x0};
-    if(cnt[0] == 1) smac := smac|48'data;
+    if(cnt[0] == 0) smac := ((smac<<8)[47:0])|48'data;
+    if(cnt[0] == 1) smac := smac|48'{data,0x0};
     if(cnt + 1 == 12) srcip();
   }
 
   proc srcip {
     _display("srcip: %x %x", sip, data);
     cnt := if(cnt + 1 == 8) 0 else cnt + 1;
-    if(cnt[0] == 0) sip := ((sip<<8)[31:0])|32'{data,0x0};
-    if(cnt[0] == 1) sip := sip|32'data;
+    if(cnt[0] == 0) sip := ((sip<<8)[31:0])|32'data;
+    if(cnt[0] == 1) sip := sip|32'{data,0x0};
     if(cnt + 1 == 8) dstmac();
   }
 
   proc dstmac {
     _display("dstmac");
     cnt := if(cnt + 1 == 12) 0 else cnt + 1;
-    if(cnt[0] == 0) dmac := ((dmac<<8)[47:0])|48'{data,0x0};
-    if(cnt[0] == 1) dmac := dmac|48'data;
+    if(cnt[0] == 0) dmac := ((dmac<<8)[47:0])|48'data;
+    if(cnt[0] == 1) dmac := dmac|48'{data,0x0};
     if(data != 0x0) error_detect();
     if(cnt + 1 == 12) dstip();
   }
@@ -145,8 +145,8 @@ module receiver {
   proc dstip {
     _display("dstip");
     cnt := if(cnt + 1 == 8) 0 else cnt + 1;
-    if(cnt[0] == 0) dip := ((dip<<8)[31:0])|32'{data,0x0};
-    if(cnt[0] == 1) dip := dip|32'data;
+    if(cnt[0] == 0) dip := ((dip<<8)[31:0])|32'data;
+    if(cnt[0] == 1) dip := dip|32'{data,0x0};
     if(cnt + 1 == 8) recv();
   }
 

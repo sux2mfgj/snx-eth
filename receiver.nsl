@@ -162,7 +162,7 @@ module receiver {
   }
 
   proc error_detect {
-    _display("Error");
+    error_detected();
     finish;
   }
 

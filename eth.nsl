@@ -1,0 +1,200 @@
+declare reciever interface {
+  input m_clock;
+  input p_reset;
+}
+
+module reciever {
+  reg active = 0, running = 0;
+  mem ps[256][4]={0xa,0xa,0xa,0xa,0xa,0xa,0xa,0xa,
+                  0xa,0xa,0xa,0xa,0xa,0xa,0xa,0xb,
+		  0xf,0xf,0xf,0xf,0xf,0xf,0xf,0xf,
+		  0xf,0xf,0xf,0xf,0x3,0xc,0x9,0x7,
+		  0x0,0xe,0x0,0xc,0xa,0x9,0x3,0x1,
+		  0x0,0x8,0x0,0x6,0x0,0x0,0x0,0x1,
+		  0x0,0x8,0x0,0x0,0x0,0x6,0x0,0x4,
+		  0x0,0x0,0x0,0x1,0x3,0xc,0x9,0x7,
+		  0x0,0xe,0x0,0xc,0xa,0x9,0x3,0x1,
+		  0xc,0x0,0xa,0x8,0x0,0x1,0x0,0x2,
+		  0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+		  0x0,0x0,0x0,0x0,0xc,0x0,0xa,0x8,
+		  0x0,0x1,0x0,0x3};
+
+  reg count[32] = 0;
+  reg cnt[8], pos[8];
+  reg psmac[48] = 0;
+  reg smac[48] = 0, sip[32] = 0;
+  reg dmac[48] = 0, dip[32] = 0;
+  
+  proc_name sfd, dst, src, arp;
+  proc_name hwtype, protocoltype, hwsize, protocolsize;
+  proc_name opecode, srcmac, srcip, dstmac, dstip;
+
+  proc_name recv, error_detect;
+
+  count := count + 1;
+  if(count == 10) active := 1;
+  if(count == 200) _finish("finish");
+
+  if(active == 1 && running == 0){
+    sfd();
+    cnt := 0;
+    pos := (count + 1)[7:0];
+    running := 1;
+  }
+
+  proc sfd {
+    pos := pos + 1;
+    any {
+      (ps[pos] == 0xb) : dst();
+      (ps[pos] != 0xa && ps[pos] != 0xb) : error_detect();
+    }
+  }
+  
+  proc dst {
+    _display("dst");
+    cnt := if(cnt + 1 == 12) 0 else cnt + 1;
+    pos := pos + 1;
+    any {
+      (ps[pos] != 0xf) : error_detect();
+      (cnt + 1 == 12) : src();
+    }
+  }
+
+  proc src {
+    _display("src");
+    cnt := if(cnt + 1 == 12) 0 else cnt + 1;
+    pos := pos + 1;
+    psmac := ((psmac<<4)[47:0])|48'ps[pos];
+    if(cnt + 1 == 12) arp();
+  }
+
+  proc arp {
+    _display("arp");
+    cnt := if(cnt + 1 == 4) 0 else cnt + 1;
+    pos := pos + 1;
+    any {
+      (cnt == 0 && ps[pos] != 0x0) : error_detect();
+      (cnt == 1 && ps[pos] != 0x8) : error_detect();
+      (cnt == 2 && ps[pos] != 0x0) : error_detect();
+      (cnt == 3 && ps[pos] != 0x6) : error_detect();
+      (cnt + 1 == 4) : hwtype();
+    }
+  }
+
+  proc hwtype {
+    _display("hwtype");
+    cnt := if(cnt + 1 == 4) 0 else cnt + 1;
+    pos := pos + 1;
+    any {
+      (cnt == 0 && ps[pos] != 0x0) : error_detect();
+      (cnt == 1 && ps[pos] != 0x0) : error_detect();
+      (cnt == 2 && ps[pos] != 0x0) : error_detect();
+      (cnt == 3 && ps[pos] != 0x1) : error_detect();
+      (cnt + 1 == 4) : protocoltype();
+    }
+  }
+  
+  proc protocoltype {
+    _display("protocoltype");
+    cnt := if(cnt + 1 == 4) 0 else cnt + 1;
+    pos := pos + 1;
+    any {
+      (cnt == 0 && ps[pos] != 0x0) : error_detect();
+      (cnt == 1 && ps[pos] != 0x8) : error_detect();
+      (cnt == 2 && ps[pos] != 0x0) : error_detect();
+      (cnt == 3 && ps[pos] != 0x0) : error_detect();
+      (cnt + 1 == 4) : hwsize();
+    }
+  }
+  
+  proc hwsize {
+    _display("hwsize");
+    cnt := if(cnt + 1 == 2) 0 else cnt + 1;
+    pos := pos + 1;
+    any {
+      (cnt == 0 && ps[pos] != 0x0) : error_detect();
+      (cnt == 1 && ps[pos] != 0x6) : error_detect();
+      (cnt + 1 == 2) : protocolsize();
+    }
+  }
+  
+  proc protocolsize {
+    _display("protocolsize");
+    cnt := if(cnt + 1 == 2) 0 else cnt + 1;
+    pos := pos + 1;
+    any {
+      (cnt == 0 && ps[pos] != 0x0) : error_detect();
+      (cnt == 1 && ps[pos] != 0x4) : error_detect();
+      (cnt + 1 == 2) : opecode();
+    }
+  }
+  
+  proc opecode {
+    _display("opecode");
+    cnt := if(cnt + 1 == 4) 0 else cnt + 1;
+    pos := pos + 1;
+    any {
+      (cnt == 0 && ps[pos] != 0x0) : error_detect();
+      (cnt == 1 && ps[pos] != 0x0) : error_detect();
+      (cnt == 2 && ps[pos] != 0x0) : error_detect();
+      (cnt == 3 && ps[pos] != 0x1) : error_detect();
+      (cnt + 1 == 4) : srcmac();
+    }
+  }
+
+  proc srcmac {
+    _display("srcmac");
+    cnt := if(cnt + 1 == 12) 0 else cnt + 1;
+    pos := pos + 1;
+    smac := ((smac<<4)[47:0])|48'ps[pos];
+    if(cnt + 1 == 12) srcip();
+  }
+
+  proc srcip {
+    _display("srcip");
+    cnt := if(cnt + 1 == 8) 0 else cnt + 1;
+    pos := pos + 1;
+    sip := ((sip<<4)[31:0])|32'ps[pos];
+    if(cnt + 1 == 8) dstmac();
+  }
+
+  proc dstmac {
+    _display("dstmac");
+    cnt := if(cnt + 1 == 12) 0 else cnt + 1;
+    pos := pos + 1;
+    dmac := ((dmac<<4)[47:0])|48'ps[pos];
+    if(ps[pos] != 0x0) error_detect();
+    if(cnt + 1 == 12) dstip();
+  }
+
+  proc dstip {
+    _display("dstip");
+    cnt := if(cnt + 1 == 8) 0 else cnt + 1;
+    pos := pos + 1;
+    dip := ((dip<<4)[31:0])|32'ps[pos];
+    if(cnt + 1 == 8) recv();
+  }
+
+  proc recv {
+    _display("Success");
+    _display("%x",psmac);
+    _display("%x",smac);
+    _display("%x",sip);
+    _display("%x",dmac);
+    _display("%x",dip);
+    finish;
+  }
+
+  proc error_detect {
+    _display("Error");
+    finish;
+  }
+  
+}
+
+declare eth {}
+module eth {
+  reciever r;
+  r.m_clock = sysclk;
+  r.p_reset = sysrst;
+}

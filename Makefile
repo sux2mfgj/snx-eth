@@ -1,4 +1,4 @@
-SRC := receiver.nsl
+SRC := receiver.nsl snx_eth.nsl
 TESTBENCH   := receiver_test
 VERILOG := $(SRC:%.nsl=%.v)
 VERILOG_SRC := $(VERILOG) $(TESTBENCH).v

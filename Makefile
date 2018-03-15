@@ -2,6 +2,8 @@ SRC := receiver.nsl
 VERILOG := $(SRC:%.nsl=%.v)
 NSL_DOCKER_IMAGE    := nsl_build
 
+all:
+
 run_docker:
 	docker run -v "$(shell pwd):/work" $(NSL_DOCKER_IMAGE) make nsl2vl SRC=$(SRC)
 

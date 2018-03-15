@@ -30,14 +30,14 @@ module receiver_test
         rx.data = 4'0x0;
     }
 
-    if(counter > 9'0x10 && counter < (9'0d72 + 9'0x10))
+    if(counter > 9'0x10 && counter < (9'0d144+ 9'0x10))
     {
         rx.data = ps[counter - 9'0x10];
         rx.valid = 1;
         _display("0x%x", ps[counter - 9'0x10]);
     }
 
-    if(counter >= (9'0d72 + 9'0x10))
+    if(counter >= (9'0d144 + 9'0x10))
     {
         rx.valid = 0;
         rx.data = 4'0x0;

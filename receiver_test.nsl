@@ -23,6 +23,12 @@ module receiver_test
     rx.m_clock = m_clock;
 
     counter++;
+    if(counter <= 0x10)
+    {
+        rx.valid = 0;
+        rx.data = 0x00;
+    }
+
     if(counter > 0x10 && counter < (0d72 + 0x10))
     {
         rx.data = {ps[counter - 0x10]};

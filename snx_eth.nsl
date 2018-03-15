@@ -24,12 +24,15 @@ module snx_eth
 
     rx.p_reset = p_reset;
     rx.m_clock = ENET1_RX_CLK; 
+    rx.data = ENET1_RX_DATA;
+    /*
     rx.data = {
         ENET1_RX_DATA[0], 
         ENET1_RX_DATA[1],
         ENET1_RX_DATA[2],
         ENET1_RX_DATA[3]
     };
+    */
     rx.valid = ENET1_RX_DV;
     rx.error = ENET1_RX_ER;
 

@@ -18,11 +18,10 @@ declare snx_eth
 
 module snx_eth
 {
-    //receiver rx;
+    receiver rx;
     reg led[8] = 0;
     reg reset_signal = 0;
 
-    /*
     rx.p_reset = p_reset;
     rx.m_clock = ENET1_RX_CLK; 
     rx.data = {
@@ -33,7 +32,6 @@ module snx_eth
     };
     rx.valid = ENET1_RX_DV;
     rx.error = ENET1_RX_ER;
-    */
 
 
     ENET1_TX_EN = 0;
@@ -43,12 +41,9 @@ module snx_eth
     ENET1_RST_N = reset_signal;
     reset_signal := 1;
 
-
-    /*
     func rx.received {
         led := 8'0xaa;
     }
-    */
 
     LEDG = led;
 }

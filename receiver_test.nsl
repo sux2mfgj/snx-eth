@@ -1,4 +1,4 @@
-#include "receiver.inc"
+#include "snx_eth.inc"
 
 declare receiver_test simulation {}
 
@@ -19,32 +19,30 @@ module receiver_test
 
     reg counter[9] = 0;
 
-    receiver rx;
-    rx.p_reset = p_reset;
-    rx.m_clock = m_clock;
+    snx_eth eth;
+    
+    eth.p_reset = p_reset;
+    eth.m_clock = m_clock;
+    eth.error = 0;
 
     counter++;
     if(counter <= 9'0x10)
     {
-        rx.valid = 0;
-        rx.data = 4'0x0;
+        eth.valid = 0;
+        eth.data = 4'0x0;
     }
 
     if(counter > 9'0x10 && counter < (9'0d144+ 9'0x10))
     {
-        rx.data = ps[counter - 9'0x10];
-        rx.valid = 1;
-        _display("0x%x", ps[counter - 9'0x10]);
+        eth.data = ps[counter - 9'0x10];
+        eth.valid = 1;
+        //_display("0x%x", ps[counter - 9'0x10]);
     }
 
     if(counter >= (9'0d144 + 9'0x10))
     {
-        rx.valid = 0;
-        rx.data = 4'0x0;
-    }
-
-    func rx.received {
-        _display("received: %x %x", rx.getIP(), rx.getMAC());
+        eth.valid = 0;
+        eth.data = 4'0x0;
     }
 
     if(counter > 9'0d300)

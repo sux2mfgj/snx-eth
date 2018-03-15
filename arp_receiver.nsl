@@ -1,12 +1,10 @@
-#include "receiver.inc"
-module receiver {
+#include "arp_receiver.inc"
+module arp_receiver {
   reg running = 0, pvalid = 0;
   reg cnt[8];
-  reg psmac[48] = 0;
   reg smac[48] = 0, sip[32] = 0;
   reg dmac[48] = 0, dip[32] = 0;
 
-  proc_name sfd, dst, src, arp;
   proc_name hwtype, protocoltype, hwsize, protocolsize;
   proc_name opecode, srcmac, srcip, dstmac, dstip;
 
@@ -14,55 +12,19 @@ module receiver {
 
   pvalid := valid;
   if(error == 1) error_detect();
-
-  if(valid == 1 && running == 0){
-    sfd();
-    cnt := 0;
-    running := 1;
-  }
-
+  
   if(running == 1 && pvalid == 1 && valid == 0){
     running := 0;
   }
 
-  proc sfd {
-    any {
-      (data == 0xd) : dst();
-      (data != 0x5 && data != 0xd) : error_detect();
-    }
-  }
-
-  proc dst {
-    _display("dst");
-    cnt := if(cnt + 1 == 12) 0 else cnt + 1;
-    any {
-      (data != 0xf) : error_detect();
-      (cnt + 1 == 12) : src();
-    }
-  }
-
-  proc src {
-    _display("src");
-    cnt := if(cnt + 1 == 12) 0 else cnt + 1;
-    if(cnt[0] == 0) psmac := ((psmac<<8)[47:0])|48'data;
-    if(cnt[0] == 1) psmac := psmac|48'{data,0x0};
-    if(cnt + 1 == 12) arp();
-  }
-
-  proc arp {
-    _display("arp");
-    cnt := if(cnt + 1 == 4) 0 else cnt + 1;
-    any {
-      (cnt == 0 && data != 0x8) : error_detect();
-      (cnt == 1 && data != 0x0) : error_detect();
-      (cnt == 2 && data != 0x6) : error_detect();
-      (cnt == 3 && data != 0x0) : error_detect();
-      (cnt + 1 == 4) : hwtype();
-    }
+  func start {
+    _display("arp_start %x", data);
+    if(running == 1) error_detect();
+    else {cnt := 0; running := 1; hwtype();}
   }
 
   proc hwtype {
-    _display("hwtype");
+    _display("hwtype %x", data);
     cnt := if(cnt + 1 == 4) 0 else cnt + 1;
     any {
       (cnt == 0 && data != 0x0) : error_detect();
@@ -74,7 +36,7 @@ module receiver {
   }
 
   proc protocoltype {
-    _display("protocoltype");
+    _display("protocoltype %x", data);
     cnt := if(cnt + 1 == 4) 0 else cnt + 1;
     any {
       (cnt == 0 && data != 0x8) : error_detect();
@@ -86,7 +48,7 @@ module receiver {
   }
 
   proc hwsize {
-    _display("hwsize");
+    _display("hwsize %x", data);
     cnt := if(cnt + 1 == 2) 0 else cnt + 1;
     any {
       (cnt == 0 && data != 0x6) : error_detect();
@@ -96,7 +58,7 @@ module receiver {
   }
 
   proc protocolsize {
-    _display("protocolsize");
+    _display("protocolsize %x", data);
     cnt := if(cnt + 1 == 2) 0 else cnt + 1;
     any {
       (cnt == 0 && data != 0x4) : error_detect();
@@ -106,7 +68,7 @@ module receiver {
   }
 
   proc opecode {
-    _display("opecode");
+    _display("opecode %x", data);
     cnt := if(cnt + 1 == 4) 0 else cnt + 1;
     any {
       (cnt == 0 && data != 0x0) : error_detect();
@@ -152,7 +114,6 @@ module receiver {
 
   proc recv {
     _display("Success");
-    _display("%x",psmac);
     _display("%x",smac);
     _display("%x",sip);
     _display("%x",dmac);
@@ -166,11 +127,19 @@ module receiver {
     finish;
   }
 
-  func getMAC {
+  func getSMAC {
     return smac;
   }
 
-  func getIP {
+  func getSIP {
     return sip;
+  }
+
+  func getDMAC {
+    return dmac;
+  }
+
+  func getDIP {
+    return dip;
   }
 }

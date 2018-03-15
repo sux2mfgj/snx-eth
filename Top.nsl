@@ -1,0 +1,37 @@
+#include "snx_eth.inc"
+declare Top {
+    output LEDG[8];
+    // for Ethernet
+    input ENET1_RX_DATA[4];
+    input ENET1_RX_DV;
+    input ENET1_RX_ER;
+    input ENET1_RX_CLK;
+
+    output ENET1_TX_EN;
+    input ENET1_TX_CLK;
+
+    output ENET1_MDC;
+    output ENET1_RST_N;
+}
+
+module Top {
+    reg reset_signal = 0;
+    snx_eth eth;
+    
+    eth.p_reset = p_reset;
+    eth.m_clock = ENET1_RX_CLK;
+    
+    eth.data = ENET1_RX_DATA;
+    eth.valid = ENET1_RX_DV;
+    eth.error = ENET1_RX_ER;
+
+    
+    ENET1_TX_EN = 0;
+    ENET1_MDC = 0;
+
+    //ENET1_RST_N = ~p_reset;
+    ENET1_RST_N = reset_signal;
+    reset_signal := 1;
+
+    LEDG = eth.getled();
+}

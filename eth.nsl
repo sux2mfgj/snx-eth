@@ -1,6 +1,4 @@
-declare reciever interface {
-  input m_clock;
-  input p_reset;
+declare reciever {
 }
 
 module reciever {
@@ -190,11 +188,4 @@ module reciever {
     finish;
   }
   
-}
-
-declare eth {}
-module eth {
-  reciever r;
-  r.m_clock = sysclk;
-  r.p_reset = sysrst;
 }

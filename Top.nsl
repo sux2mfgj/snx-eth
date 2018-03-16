@@ -38,7 +38,7 @@ module Top {
     LEDG = eth.getled();
 
     func eth.received {
-        ledr := eth.getSIP()[15:0];
+        ledr := eth.getDIP()[15:0];
     }
     LEDR = ledr;
 }

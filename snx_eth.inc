@@ -6,8 +6,10 @@ declare snx_eth interface {
 
     output ledo[8];
     output sip[32]; 
+    output dip[32]; 
 
     func_in getled() : ledo;
     func_out received(); 
     func_in getSIP() : sip;
+    func_in getDIP() : dip;
 }

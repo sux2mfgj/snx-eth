@@ -72,6 +72,11 @@ module snx_eth
         return arp_rx.getSIP();
     }
 
+    func getDIP {
+        return arp_rx.getDIP();
+    }
+
+
     func getled {
         return led;
     }

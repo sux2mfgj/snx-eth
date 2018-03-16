@@ -64,7 +64,8 @@ module snx_eth
     arp_rx.error = error;
 
     func arp_rx.received {
-    	_display("%x %x", arp_rx.getSMAC(), arp_rx.getSIP());
+    	_display("S: %x %x", arp_rx.getSMAC(), arp_rx.getSIP());
+    	_display("D: %x %x", arp_rx.getDMAC(), arp_rx.getDIP());
         led := 8'0xaa;
         received();
 	    running := 0;

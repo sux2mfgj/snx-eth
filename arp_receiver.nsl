@@ -21,7 +21,15 @@ module arp_receiver {
   func start {
     _display("arp_start %x", data);
     if(running == 1) error_detect();
-    else {cnt := 0; running := 1; hwtype();}
+    else {
+      cnt := 0;
+      running := 1;
+      smac := 0;
+      dmac := 0;
+      sip := 0;
+      dip := 0;
+      hwtype();
+    }
   }
 
   proc hwtype {
@@ -83,7 +91,7 @@ module arp_receiver {
   proc srcmac {
     _display("srcmac: %x %x", smac, data);
     cnt := if(cnt + 1 == 12) 0 else cnt + 1;
-    if(cnt[0] == 0) smac := ((smac<<8)[47:0])|48'data;
+    if(cnt[0] == 0) smac := {smac[39:0], 0x0, data};
     if(cnt[0] == 1) smac := smac|48'{data,0x0};
     if(cnt + 1 == 12) srcip();
   }
@@ -91,7 +99,7 @@ module arp_receiver {
   proc srcip {
     _display("srcip: %x %x", sip, data);
     cnt := if(cnt + 1 == 8) 0 else cnt + 1;
-    if(cnt[0] == 0) sip := ((sip<<8)[31:0])|32'data;
+    if(cnt[0] == 0) sip := {sip[23:0], 0x0, data};
     if(cnt[0] == 1) sip := sip|32'{data,0x0};
     if(cnt + 1 == 8) dstmac();
   }
@@ -99,7 +107,7 @@ module arp_receiver {
   proc dstmac {
     _display("dstmac");
     cnt := if(cnt + 1 == 12) 0 else cnt + 1;
-    if(cnt[0] == 0) dmac := ((dmac<<8)[47:0])|48'data;
+    if(cnt[0] == 0) dmac := {dmac[39:0], 0x0, data};;
     if(cnt[0] == 1) dmac := dmac|48'{data,0x0};
     if(data != 0x0) error_detect();
     if(cnt + 1 == 12) dstip();
@@ -108,7 +116,7 @@ module arp_receiver {
   proc dstip {
     _display("dstip");
     cnt := if(cnt + 1 == 8) 0 else cnt + 1;
-    if(cnt[0] == 0) dip := ((dip<<8)[31:0])|32'data;
+    if(cnt[0] == 0) dip := {dip[23:0], 0x0, data};
     if(cnt[0] == 1) dip := dip|32'{data,0x0};
     if(cnt + 1 == 8) padding();
   }

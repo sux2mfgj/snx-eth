@@ -21,6 +21,8 @@ module snx_eth
         cnt := 0;
 	eth_buf := 0;
         running := 1;
+	smac := 0;
+	dmac := 0;
     }
 
     proc sfd {
@@ -31,7 +33,7 @@ module snx_eth
     proc dst {
     	_display("dst");
      	cnt := if(cnt + 1 == 12) 0 else cnt + 1;
-    	if(cnt[0] == 0) dmac := {dmac[43:0], data};
+    	if(cnt[0] == 0) dmac := {dmac[39:0], 0x0, data};
     	if(cnt[0] == 1) dmac := dmac|48'{data,0x0};
     	if(cnt + 1 == 12) src();
     }
@@ -39,7 +41,7 @@ module snx_eth
     proc src {
         _display("src");
     	cnt := if(cnt + 1 == 12) 0 else cnt + 1;
-    	if(cnt[0] == 0) smac := {smac[43:0], data};
+    	if(cnt[0] == 0) smac := {smac[39:0], 0x0, data};
     	if(cnt[0] == 1) smac := smac|48'{data,0x0};
     	if(cnt + 1 == 12) check();
     }
